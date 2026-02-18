@@ -42,10 +42,8 @@ bool checkDiagonal(int rowA, int colA, int rowB, int colB) {
 bool isValid(Point* positionQueen, char* color, int n) {
     for (int i = 0; i < n - 1; i++) {
         for (int j = i + 1; j < n; j++) {
-            if (positionQueen[i].row == positionQueen[j].row || 
-                positionQueen[i].col == positionQueen[j].col || 
-                color[i] == color[j] || 
-                checkDiagonal(positionQueen[i].row, positionQueen[i].col, positionQueen[j].row, positionQueen[j].col)) {
+            if (positionQueen[i].row == positionQueen[j].row || positionQueen[i].col == positionQueen[j].col || 
+                color[i] == color[j] || checkDiagonal(positionQueen[i].row, positionQueen[i].col, positionQueen[j].row, positionQueen[j].col)) {
                 return false;
             }
         }
@@ -92,6 +90,7 @@ void optimized(Point* coordinate, char* color, int n, char** map, bool* valid){
                 }
                 steps++;
             }
+            // ==== LIVE UPDATE ====
             if (steps % (5*n*n+1) == 0) printBoard(coordinate, n, n);
         }
     }
@@ -139,6 +138,7 @@ void algoritmaBF(Point* coordinate, char* color, int n, char** map, bool* valid)
                 }
                 steps++;
             }
+            // ==== LIVE UPDATE ====
             if (steps % (2*n*n*n) == 0) printBoard(coordinate, n, n);
         }
     }
@@ -154,21 +154,60 @@ int main(int argc, char* argv[]){
 
     vector<string> lines;
     string s;
-    while (getline(f, s)) if (!s.empty()) lines.push_back(s);
+    int rowTemp = 0;
+    while (getline(f, s)){
+        rowTemp++;
+        if (!s.empty()) lines.push_back(s);
+    }
     f.close();
 
     int n = lines.size();
+
+    // ===== VALIDASI BOARD =====
+    if(rowTemp != n){
+        cout << "INVALID BOARD:" << "Board tidak persegi" << endl;
+        return 0;
+    }
+
+    // ===== INPUT MATRIKS =====
     char** map = new char*[n];
+    char* color = new char[n*n];
+    int nColor = 0;
+    int tempK = 0;
+    bool foundColor = false;
+    
     for (int i = 0; i < n; i++) {
         map[i] = new char[n];
-        for (int j = 0; j < n; j++) map[i][j] = lines[i][j];
+        for (int j = 0; j < n; j++){
+            map[i][j] = lines[i][j];
+            tempK = 0;
+            foundColor = false;
+            //Count warna
+            while(!foundColor && tempK < nColor){
+                if(color[tempK] == map[i][j]) {
+                    foundColor = true;
+                    break;
+                }tempK++;
+            }
+            if(!foundColor){
+                color[nColor] = map[i][j];
+                nColor++;
+            }
+        }
+    }
+
+    // ===== VALIDASI BOARD =====
+    if(nColor != n){
+        cout << "INVALID BOARD:" << "Jumlah region tidak sesuai" << endl;
+        return 0;
     }
 
     Point* positionQueen = new Point[n];
-    char* color = new char[n];
     bool solutionExist = false;
 
     auto start = high_resolution_clock::now();
+
+    // ===== RUN ALGORTIMA =====
     if (algo == "bruteforce") algoritmaBF(positionQueen, color, n, map, &solutionExist);
     else optimized(positionQueen, color, n, map, &solutionExist);
 

@@ -42,7 +42,7 @@ class NQueenGUI:
         tk.Label(frame_top, text="File:").grid(row=0, column=0)
         self.file_entry = tk.Entry(frame_top, width=30)
         self.file_entry.grid(row=0, column=1, padx=5)
-        tk.Button(frame_top, text="Browse", command=self.browse_file).grid(row=0, column=2)
+        tk.Button(frame_top, text="Generate", command=self.submit).grid(row=0, column=2)
 
         self.algo_var = tk.StringVar(value="optimization")
         tk.Radiobutton(frame_top, text="Brute Force", variable=self.algo_var, value="bruteforce").grid(row=1, column=1)
@@ -61,22 +61,32 @@ class NQueenGUI:
         self.time_label = tk.Label(stats_frame, text="Time: 0 ms", font=('Courier', 10, 'bold'))
         self.time_label.pack(side=tk.LEFT, padx=20)
 
-    def browse_file(self):
-        filename = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
-        if filename:
-            self.file_entry.delete(0, tk.END)
-            self.file_entry.insert(0, filename)
-            self.load_region_map(filename)
+
+    def submit(self):
+        file_raw = self.file_entry.get().strip()
+        
+        if not file_raw:
+            messagebox.showwarning("Warning", "Tulis nama file")
+            return
+
+        filename = f"../test/{file_raw}.txt"
+        
+        self.load_region_map(filename)
 
     def load_region_map(self, filename):
         try:
             with open(filename, 'r') as f:
                 self.region_map = [line.strip() for line in f if line.strip()]
-            self.draw_matrix([[0]*len(self.region_map) for _ in self.region_map]) 
+            
+            self.draw_matrix([[0]*len(self.region_map) for _ in self.region_map])
+            
             self.step_label.config(text="Steps: 0")
             self.time_label.config(text="Time: 0 ms")
+            
+        except FileNotFoundError:
+            messagebox.showerror("Error", f"File tidak ditemukan: {filename}\nPastikan file ada di folder ../test/")
         except Exception as e:
-            messagebox.showerror("Error", f"Gagal membaca file: {e}")
+            messagebox.showerror("Error", f"Gagal membaca board: {e}")
 
     def draw_matrix(self, matrix):
         if not self.region_map: return
@@ -116,7 +126,8 @@ class NQueenGUI:
         threading.Thread(target=self.run_cpp_solver, daemon=True).start()
 
     def run_cpp_solver(self):
-        file_path = self.file_entry.get()
+        file_raw = self.file_entry.get()
+        file_path = "../test/" + file_raw +".txt"
         algo = self.algo_var.get()
         exe = "./solver.exe" 
         
@@ -125,9 +136,14 @@ class NQueenGUI:
             process = subprocess.Popen([exe, file_path, algo], stdout=subprocess.PIPE, text=True)
             curr_board = []
             is_reading = False
-
+            
             for line in process.stdout:
                 line = line.strip()
+                
+                if line.startswith("INVALID BOARD:"):
+                    error_msg = line.split(":", 1)[1]
+                    self.root.after(0, lambda m=error_msg: messagebox.showerror("Board Invalid", m))
+                    return # Langsung keluar dari fungsi agar tidak memproses board kosong
                 if line.startswith("STEPS:"):
                     self.root.after(0, lambda v=line.split(":")[1]: self.step_label.config(text=f"Steps: {v}"))
                 elif line.startswith("TIME:"):
