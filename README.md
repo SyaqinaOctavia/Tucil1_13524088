@@ -16,8 +16,8 @@ Program ini merupakan solver untuk game Queens. Algoritma yang digunakan adalah 
 
 <h2 id="algoritma">Algoritma</h2>
 Terdapat 2 opsi untuk algoritma yang digunakan
-1. Pure Brute Force. Kompleksitas O( C(n*n,n) ) <br/>
-2. Optimized Brute Force, dengan cara mencari berdasarkan baris (tidak ada >1 queen pada baris yang sama). Kom O(n^n) <br/>
+1. Pure Brute Force. Kompleksitas O( C(n*n,n) )<br/>
+2. Optimized Brute Force, dengan cara mencari berdasarkan baris (tidak ada >1 queen pada baris yang sama). Kom O(n^n)<br/>
 
 <h2 id="install">Library yang perlu di-instal</h2>
 Install python, lalu install library Pillow
