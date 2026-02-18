@@ -16,10 +16,12 @@ Program ini merupakan solver untuk game Queens. Algoritma yang digunakan adalah 
 
 <h2 id="algoritma">Algoritma</h2>
 Terdapat 2 opsi untuk algoritma yang digunakan
-1. Pure Brute Force. Kompleksitas O( C(n*n,n) )
-2. Optimized Brute Force, dengan cara mencari berdasarkan baris (tidak ada >1 queen pada baris yang sama). Kom O(n^n)
+1. Pure Brute Force. Kompleksitas O( C(n*n,n) ) <br/>
+2. Optimized Brute Force, dengan cara mencari berdasarkan baris (tidak ada >1 queen pada baris yang sama). Kom O(n^n) <br/>
 
 <h2 id="install">Library yang perlu di-instal</h2>
+Install python, lalu install library Pillow
+
 ```bash
 pip install Pillow
 ```
@@ -36,5 +38,15 @@ run gui
 ```bash
 python gui.py
 ```
+
+<h2 id="#alur">Alur Singkat Program</h2>
+
+- Masukkan nama file (tanpa ".txt")
+- Klik Generate
+- Program akan generate board awal
+- Pilih algoritma
+- Solver akan jalan dan menampilkan Live Update
+- Menampilkan Hasil Akhir
+- Pilih apakah ingin simpan hasil atau tidak
 
 Made by: Syaqina Octavia Rizha, NIM: 13524088
